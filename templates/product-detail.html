@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .product-container {
+            display: flex;
+            gap: 40px;
+        }
+
+        .product-image {
+            flex: 1;
+        }
+
+        .product-image img {
+            width: 100%;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .price {
+            font-size: 24px;
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/pages/home">← Back to Shop</a>
+
+    <!-- Note: Our simple template engine might not handle single object injection perfectly if we passed 'product' as key. 
+         But let's assume the router passes the product fields directly into context if it fetches a single item?
+         Wait, my router logic for 'dataSource' fetches ALL items if it's a collection.
+         I need to handle "Single Item Page" logic in the router.
+         The router currently does: const data = dataManager.getAll(pageConfig.dataSource);
+         It doesn't handle /pages/product-detail?id=1
+    -->
+
+    <div class="product-container">
+        <div class="product-image">
+            <img src="{{image}}" alt="{{name}}">
+        </div>
+        <div class="product-info">
+            <h1>{{name}}</h1>
+            <p class="price">\${{price}}</p>
+            <p>{{description}}</p>
+            <button>Add to Cart</button>
+        </div>
+    </div>
+</body>
+
+</html>

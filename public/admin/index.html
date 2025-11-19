@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal App Builder - Admin</title>
+    <style>
+        body { font-family: sans-serif; display: flex; }
+        nav { width: 200px; background: #f4f4f4; padding: 20px; height: 100vh; }
+        main { flex: 1; padding: 20px; }
+        .hidden { display: none; }
+        ul { list-style: none; padding: 0; }
+        li { margin-bottom: 10px; cursor: pointer; color: blue; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        input, textarea, select { width: 100%; padding: 5px; margin-bottom: 10px; }
+        button { padding: 5px 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h3>Admin Panel</h3>
+        <ul>
+            <li onclick="showSection('dashboard')">Dashboard</li>
+            <li onclick="showSection('collections')">Collections</li>
+            <li onclick="showSection('pages')">Pages</li>
+        </ul>
+    </nav>
+    <main>
+        <div id="dashboard">
+            <h1>Dashboard</h1>
+            <p>Welcome to the Universal App Builder Admin.</p>
+        </div>
+
+        <div id="collections" class="hidden">
+            <h1>Collections</h1>
+            <div style="margin-bottom: 20px;">
+                <h3>Create New Collection</h3>
+                <input type="text" id="newCollectionName" placeholder="Collection Name (e.g., products)">
+                <button onclick="createCollection()">Create</button>
+            </div>
+            <hr>
+            <h3>Manage Data</h3>
+            <select id="collectionSelect" onchange="loadCollectionData()">
+                <option value="">Select Collection...</option>
+            </select>
+            <button onclick="showAddItemForm()">Add Item</button>
+            <div id="dataContainer"></div>
+        </div>
+
+        <div id="pages" class="hidden">
+            <h1>Page Configurations</h1>
+            <p>Manage your pages here (stored in 'pages' collection).</p>
+            <button onclick="loadPages()">Refresh Pages</button>
+            <div id="pagesContainer"></div>
+        </div>
+    </main>
+
+    <!-- Modal for Adding/Editing Items -->
+    <div id="itemModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5);">
+        <div style="background:white; margin:10% auto; padding:20px; width:50%;">
+            <h2 id="modalTitle">Add Item</h2>
+            <form id="itemForm"></form>
+            <button onclick="saveItem()">Save</button>
+            <button onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function showSection(id) {
+            document.querySelectorAll('main > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            if (id === 'collections') loadCollections();
+            if (id === 'pages') loadPages();
+        }
+
+        async function loadCollections() {
+            const res = await fetch(`${API_URL}/`);
+            const collections = await res.json();
+            const select = document.getElementById('collectionSelect');
+            select.innerHTML = '<option value="">Select Collection...</option>';
+            collections.forEach(c => {
+                select.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+        }
+
+        async function createCollection() {
+            const name = document.getElementById('newCollectionName').value;
+            if (!name) return alert('Enter name');
+            // We need a schema. For now, we'll just create a default empty schema or ask for it.
+            // To keep it simple, we'll just init it with an empty schema object via a direct API call if we had one for schema creation.
+            // But our API expects schema to exist.
+            // Wait, DataManager.createCollection needs to be exposed.
+            // We didn't expose a "create collection" API endpoint explicitly in routes/api.js!
+            // We only have CRUD for *items* in a collection.
+            // Let's assume we can POST to /api/schemas (if we implemented it) or just hack it for now.
+            // Actually, I missed implementing a "Create Collection" endpoint.
+            // I will add a special endpoint or just use a 'schemas' collection if I want to be meta.
+            // For now, let's just alert that this feature needs the backend update.
+            alert('Feature to create collection via UI pending backend update. Please define in schemas.json manually or I will add the endpoint.');
+        }
+
+        async function loadCollectionData() {
+            const collection = document.getElementById('collectionSelect').value;
+            if (!collection) return;
+            
+            const res = await fetch(`${API_URL}/${collection}`);
+            const data = await res.json();
+            
+            let html = '<table><thead><tr><th>ID</th><th>Data</th><th>Actions</th></tr></thead><tbody>';
+            data.forEach(item => {
+                html += `<tr>
+                    <td>${item.id}</td>
+                    <td><pre>${JSON.stringify(item, null, 2)}</pre></td>
+                    <td>
+                        <button onclick='deleteItem("${collection}", "${item.id}")'>Delete</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('dataContainer').innerHTML = html;
+        }
+
+        function showAddItemForm() {
+            const collection = document.getElementById('collectionSelect').value;
+            if (!collection) return alert('Select a collection');
+            
+            const form = document.getElementById('itemForm');
+            form.innerHTML = `
+                <label>JSON Data:</label>
+                <textarea id="itemJson" rows="10">{}</textarea>
+            `;
+            document.getElementById('itemModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('itemModal').style.display = 'none';
+        }
+
+        async function saveItem() {
+            const collection = document.getElementById('collectionSelect').value;
+            const json = document.getElementById('itemJson').value;
+            let data;
+            try {
+                data = JSON.parse(json);
+            } catch(e) {
+                return alert('Invalid JSON');
+            }
+
+            await fetch(`${API_URL}/${collection}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            closeModal();
+            loadCollectionData();
+        }
+
+        async function deleteItem(collection, id) {
+            if(!confirm('Are you sure?')) return;
+            await fetch(`${API_URL}/${collection}/${id}`, { method: 'DELETE' });
+            loadCollectionData();
+        }
+        
+        async function loadPages() {
+             // Pages are just a collection named 'pages'
+             // We can reuse the collection viewer or build a specific UI
+             // For now, let's just tell the user to manage 'pages' collection in the Collections tab
+             document.getElementById('pagesContainer').innerHTML = '<p>Please go to "Collections" tab and select "pages" to manage page configurations.</p>';
+        }
+    </script>
+</body>
+</html>

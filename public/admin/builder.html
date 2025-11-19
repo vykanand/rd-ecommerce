@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal App Builder</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        #sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #444;
+        }
+
+        #sidebar h2 {
+            padding: 20px;
+            margin: 0;
+            background: #1a252f;
+            font-size: 18px;
+        }
+
+        .section-title {
+            padding: 10px 20px;
+            background: #34495e;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        .list-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #34495e;
+            font-size: 14px;
+        }
+
+        .list-item:hover {
+            background: #3e5871;
+        }
+
+        .list-item.active {
+            background: #3498db;
+        }
+
+        .add-btn {
+            padding: 5px 10px;
+            background: #27ae60;
+            border: none;
+            color: white;
+            cursor: pointer;
+            float: right;
+            font-size: 12px;
+            margin-top: -2px;
+        }
+
+        /* Main Area */
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Toolbar */
+        #toolbar {
+            height: 50px;
+            background: #ecf0f1;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            justify-content: space-between;
+        }
+
+        .tool-btn {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #bdc3c7;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .tool-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .tool-btn.primary {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        /* Editor Container */
+        #editor-container {
+            flex: 1;
+            display: flex;
+        }
+
+        /* Code Editor */
+        #code-editor {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #bdc3c7;
+        }
+
+        #code-textarea {
+            flex: 1;
+            padding: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            border: none;
+            resize: none;
+            background: #f8f9fa;
+            outline: none;
+        }
+
+        /* Preview */
+        #preview-container {
+            flex: 1;
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #preview-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .preview-header {
+            padding: 10px;
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 20px;
+            width: 400px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal input,
+        .modal select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+
+        .modal button {
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar">
+        <h2>App Builder</h2>
+
+        <div class="section-title">
+            Pages
+            <button class="add-btn" onclick="showAddPageModal()">+</button>
+        </div>
+        <div id="pages-list">
+            <!-- Pages injected here -->
+        </div>
+
+        <div class="section-title">
+            Collections
+            <button class="add-btn" onclick="showAddCollectionModal()">+</button>
+        </div>
+        <div id="collections-list">
+            <!-- Collections injected here -->
+        </div>
+    </div>
+    <div id="preview-container">
+        <div class="preview-header">Live Preview</div>
+        <iframe id="preview-frame"></iframe>
+    </div>
+    </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="addPageModal" class="modal">
+        <div class="modal-content">
+            <h3>New Page</h3>
+            <input type="text" id="newPageId" placeholder="Page ID (e.g., about-us)">
+            <input type="text" id="newPageTitle" placeholder="Page Title">
+            <select id="newPageSource">
+                <option value="">No Data Source</option>
+                <!-- Collections injected here -->
+            </select>
+            <div style="text-align: right;">
+                <button onclick="closeModals()">Cancel</button>
+                <button onclick="createPage()" class="tool-btn primary">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addCollectionModal" class="modal">
+        <div class="modal-content">
+            <h3>New Collection</h3>
+            <input type="text" id="newCollectionName" placeholder="Collection Name (e.g., testimonials)">
+            <p style="font-size: 12px; color: #666;">Schema will be created with default fields. Edit schema later.</p>
+            <div style="text-align: right;">
+                <button onclick="closeModals()">Cancel</button>
+                <button onclick="createCollection()" class="tool-btn primary">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/admin/js/builder.js"></script>
+</body>
+
+</html>

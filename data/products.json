@@ -1,0 +1,26 @@
+[
+    {
+        "id": "1",
+        "name": "Smartphone X",
+        "price": 999,
+        "description": "The latest smartphone with amazing features.",
+        "image": "https://via.placeholder.com/300",
+        "category": "Electronics"
+    },
+    {
+        "id": "2",
+        "name": "Laptop Pro",
+        "price": 1499,
+        "description": "High performance laptop for professionals.",
+        "image": "https://via.placeholder.com/300",
+        "category": "Electronics"
+    },
+    {
+        "id": "3",
+        "name": "Wireless Headphones",
+        "price": 199,
+        "description": "Noise cancelling headphones.",
+        "image": "https://via.placeholder.com/300",
+        "category": "Accessories"
+    }
+]

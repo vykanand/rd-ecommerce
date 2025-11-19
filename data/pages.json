@@ -1,0 +1,16 @@
+[
+    {
+        "id": "home",
+        "template": "product-list.html",
+        "dataSource": "products",
+        "dataKey": "products",
+        "title": "Welcome to our Shop"
+    },
+    {
+        "id": "product-detail",
+        "template": "product-detail.html",
+        "dataSource": "products",
+        "dataKey": "product",
+        "title": "Product Detail"
+    }
+]

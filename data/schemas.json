@@ -1,0 +1,28 @@
+{
+    "products": {
+        "name": "text",
+        "price": "number",
+        "description": "text",
+        "image": "text",
+        "category": "text"
+    },
+    "orders": {
+        "user_id": "text",
+        "items": "array",
+        "total": "number",
+        "status": "text"
+    },
+    "pages": {
+        "id": "text",
+        "template": "text",
+        "dataSource": "text",
+        "dataKey": "text",
+        "title": "text",
+        "templateId": "text",
+        "templateContent": "text"
+    },
+    "templates": {
+        "name": "text",
+        "content": "text"
+    }
+}
